@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Nodes de Investimento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-dark: #0f141e;
+            --primary-red: #ff4d4d; 
+            --card-gray: #1e2533;
+            --text-white: #ffffff;
+            --text-muted: #8e94a3;
+            --nav-bg: #181d29;
+            --success: #00ff88;
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-white);
+            padding-bottom: 120px;
+            background-image: radial-gradient(circle at 50% -20%, #2c1010 0%, #0f141e 60%);
+            min-height: 100vh;
+        }
+
+        /* Classes Globais SweetAlert Customizadas */
+        .capnex-swal-popup {
+            background: #12161f !important;
+            border: 1px solid rgba(255, 77, 77, 0.2) !important;
+            border-radius: 28px !important;
+            padding: 2em !important;
+        }
+        .capnex-swal-title {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.5px;
+        }
+        .capnex-swal-content {
+            color: #8e94a3 !important;
+            font-weight: 500 !important;
+        }
+        .capnex-swal-confirm {
+            background: var(--primary-red) !important;
+            border-radius: 16px !important;
+            padding: 14px 32px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.25) !important;
+        }
+        .capnex-swal-cancel {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border-radius: 16px !important;
+            font-weight: 600 !important;
+        }
+
+        .grow-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .grow-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .header-planos {
+            padding: 40px 20px 20px 20px;
+            text-align: left;
+        }
+        .header-planos h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; letter-spacing: -1px; }
+        .header-planos p { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+
+        .balance-bar {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            margin: 10px 20px 30px 20px;
+            padding: 18px 22px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .balance-info label { display: block; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .balance-info strong { font-size: 1.3rem; color: #fff; font-weight: 800; }
+        .btn-add {
+            background: var(--primary-red);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+        }
+
+        .planos-container {
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .node-card {
+            background: var(--card-gray);
+            border-radius: 24px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .node-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+        }
+
+        .node-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-identity h3 { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .node-tag { 
+            background: rgba(255, 77, 77, 0.1); 
+            color: var(--primary-red); 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            padding: 4px 10px; 
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .node-price {
+            text-align: right;
+        }
+        .node-price .val { font-size: 1.4rem; font-weight: 800; color: #fff; display: block; }
+        .node-price .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .grid-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .grid-item small { display: block; font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+        .grid-item span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+
+        .profit-preview {
+            background: rgba(0, 255, 136, 0.05);
+            padding: 12px 18px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .profit-preview span:first-child { font-size: 0.75rem; font-weight: 700; color: var(--success); }
+        .profit-preview span:last-child { font-size: 1rem; font-weight: 800; color: #fff; }
+
+        .btn-node-action {
+            width: 100%;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2);
+        }
+        .btn-node-action:active { transform: scale(0.97); opacity: 0.9; }
+        .btn-node-action:disabled {
+            background: #444;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 25px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            flex: 1; transition: 0.3s;
+        }
+        .nav-item.active { color: var(--primary-red); }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <header class="header-planos grow-reveal">
+        <h2>Nodes Disponíveis</h2>
+        <p>Escolha um plano e maximize seus lucros.</p>
+    </header>
+
+    <div class="balance-bar grow-reveal">
+        <div class="balance-info">
+            <label>Saldo para Ativação</label>
+            <strong id="user-balance-top">R$ 0,00</strong>
+        </div>
+        <a href="deposito.html" class="btn-add"><i class="fas fa-plus"></i> Depósito</a>
+    </div>
+
+    <main class="planos-container" id="container-planos-list"></main>
+
+    <nav class="nav-bottom">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Início</span></a>
+        <a href="planos.html" class="nav-item active"><i class="fas fa-gem"></i><span>Planos</span></a>
+        <a href="recompensas.html" class="nav-item"><i class="fas fa-gift"></i><span>Bônus</span></a>
+        <a href="indicacao.html" class="nav-item"><i class="fas fa-users"></i><span>Rede</span></a>
+        <a href="perfil.html" class="nav-item"><i class="fas fa-user"></i><span>Perfil</span></a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection, addDoc, Timestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // CONFIGURAÇÃO DO SWEETALERT PREMIUM CAPNEX
+        const CapNexAlert = {
+            fire: (config) => {
+                return Swal.fire({
+                    customClass: {
+                        popup: 'capnex-swal-popup',
+                        title: 'capnex-swal-title',
+                        htmlContainer: 'capnex-swal-content',
+                        confirmButton: 'capnex-swal-confirm',
+                        cancelButton: 'capnex-swal-cancel'
+                    },
+                    buttonsStyling: false,
+                    showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
+                    hideClass: { popup: 'animate__animated animate__zoomOut animate__faster' },
+                    ...config
+                });
+            }
+        };
+
+        const vips = [
+            { n: 1, v: 30 }, { n: 2, v: 50 }, { n: 3, v: 100 }, 
+            { n: 4, v: 200 }, { n: 5, v: 400 }, { n: 6, v: 600 }, 
+            { n: 7, v: 800 }, { n: 8, v: 1000 }, { n: 9, v: 1500 }, { n: 10, v: 2000 }
+        ];
+
+        let userUID = null;
+        let userBalance = 0;
+        let userData = null;
+
+        function triggerGrowReveal() {
+            const items = document.querySelectorAll('.grow-reveal');
+            items.forEach((item, index) => {
+                setTimeout(() => item.classList.add('active'), index * 80); 
+            });
+        }
+
+        function renderVips() {
+            const list = document.getElementById('container-planos-list');
+            list.innerHTML = vips.map((v) => {
+                const daily = v.v * 0.20; 
+                const net = daily * 60;
+                const isLocked = v.n >= 7;
+
+                return `
+                <div class="node-card grow-reveal ${isLocked ? 'locked' : ''}">
+                    <div class="node-top">
+                        <div class="node-identity">
+                            <h3>Quantum Node N${v.n}</h3>
+                            <span class="node-tag">${isLocked ? 'Em Breve' : 'Disponível'}</span>
+                        </div>
+                        <div class="node-price">
+                            <span class="label">Investimento</span>
+                            <span class="val">R$ ${v.v.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="node-grid">
+                        <div class="grid-item"><small>Rentabilidade</small><span>20% / dia</span></div>
+                        <div class="grid-item"><small>Ciclo</small><span>60 dias</span></div>
+                        <div class="grid-item"><small>Lucro Diário</small><span style="color:var(--success)">R$ ${daily.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span></div>
+                        <div class="grid-item"><small>Saque</small><span>Imediato</span></div>
+                    </div>
+
+                    <div class="profit-preview">
+                        <span>Retorno Final Estimado</span>
+                        <span>R$ ${net.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                    </div>
+
+                    <button class="btn-node-action" 
+                        ${isLocked ? 'disabled' : ''} 
+                        onclick="window.processInvestment(${v.v}, ${daily}, ${v.n})">
+                        ${isLocked ? 'Aguarde' : 'Ativar Node Agora'}
+                    </button>
+                </div>`;
+            }).join('');
+            
+            setTimeout(triggerGrowReveal, 100);
+        }
+
+        renderVips();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userUID = user.uid;
+                onSnapshot(doc(db, "usuarios", userUID), (snap) => {
+                    if (snap.exists()) {
+                        userData = snap.data();
+                        userBalance = userData.saldo || 0;
+                        document.getElementById('user-balance-top').innerText = `R$ ${userBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+                    }
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        window.processInvestment = async (cost, yieldDay, tier) => {
+            if (!userUID || !userData) return;
+            
+            if (userBalance < cost) {
+                return CapNexAlert.fire({ 
+                    title: 'Saldo Insuficiente', 
+                    text: `Você precisa de R$ ${cost.toLocaleString('pt-BR', {minimumFractionDigits: 2})} para ativar este Node.`, 
+                    icon: 'warning',
+                    iconColor: '#ff4d4d'
+                });
+            }
+
+            const confirm = await CapNexAlert.fire({
+                title: `Ativar Quantum N${tier}?`,
+                html: `Você está prestes a investir <b>R$ ${cost.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</b>.<br><small style="color:#8e94a3">O rendimento diário será creditado a cada 24h.</small>`,
+                icon: 'question',
+                iconColor: '#ff4d4d',
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar Ativação',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                CapNexAlert.fire({ 
+                    title: 'Processando...', 
+                    text: 'Iniciando mineração no Node.',
+                    allowOutsideClick: false, 
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                try {
+                    const isFirstPurchase = (userData.totalInvestido || 0) === 0;
+
+                    // 1. DESCONTA DO SALDO BANCÁRIO DO USUÁRIO
+                    await updateDoc(doc(db, "usuarios", userUID), { 
+                        saldo: increment(-cost),
+                        totalInvestido: increment(cost),
+                        planoAtivo: true
+                    });
+
+                    // 2. CONFIGURA AS TAXAS DE REDE (MGM)
+                    const taxas = isFirstPurchase 
+                        ? { lvl1: 0.15, lvl2: 0.01, lvl3: 0.01 } 
+                        : { lvl1: 0.03, lvl2: 0.01, lvl3: 0.01 };
+
+                    const lideres = [
+                        { id: userData.indicadoPor, taxa: taxas.lvl1, label: "Direto" },
+                        { id: userData.indicadoPorLvl2, taxa: taxas.lvl2, label: "Nível 2" },
+                        { id: userData.indicadoPorLvl3, taxa: taxas.lvl3, label: "Nível 3" }
+                    ];
+
+                    // 3. PAGAMENTO DAS COMISSÕES DE REDE (CORRIGIDO PARA SALDO LUCRO/SAQUE)
+                    for (const lider of lideres) {
+                        if (lider.id && lider.id.trim() !== "") {
+                            const comissaoValor = cost * lider.taxa;
+                            
+                            await updateDoc(doc(db, "usuarios", lider.id), {
+                                saldoLucro: increment(comissaoValor), // CORREÇÃO: Enviando para Saldo de Saque
+                                totalComissao: increment(comissaoValor)
+                            });
+
+                            await addDoc(collection(db, "historico"), {
+                                userId: lider.id,
+                                valor: comissaoValor,
+                                tipo: `Bônus Rede (${lider.label})`,
+                                data: Timestamp.now(),
+                                status: "CONCLUIDO"
+                            });
+                        }
+                    }
+
+                    // 4. CRIA O REGISTRO DO INVESTIMENTO ATIVO
+                    await addDoc(collection(db, "user_investments"), {
+                        userId: userUID,
+                        titulo: `Quantum Node N${tier}`,
+                        valorOriginal: cost,
+                        valorRecebido: 0,
+                        valorTotalFinal: yieldDay * 60,
+                        diasPassados: 0,
+                        diasTotais: 60,
+                        rendimentoDiario: yieldDay,
+                        status: 'ativo',
+                        dataCompra: Timestamp.now(),
+                        ultimoPagamento: Timestamp.now(),
+                        imgUrl: 'https://cdn-icons-png.flaticon.com/512/2091/2091665.png'
+                    });
+
+                    // 5. REGISTRA HISTÓRICO DE DÉBITO PARA O COMPRADOR
+                    await addDoc(collection(db, "historico"), {
+                        userId: userUID,
+                        valor: -cost,
+                        tipo: `Ativação Node N${tier}`,
+                        data: Timestamp.now(),
+                        status: "CONCLUIDO"
+                    });
+
+                    await CapNexAlert.fire({ 
+                        title: 'Ativado!', 
+                        text: 'Seu Node já está gerando lucros.', 
+                        icon: 'success', 
+                        iconColor: '#00ff88',
+                        timer: 2500, 
+                        showConfirmButton: false 
+                    });
+                    
+                    window.location.href = "home.html";
+                    
+                } catch (e) { 
+                    console.error("Erro na ativação:", e);
+                    CapNexAlert.fire({ title: 'Erro Interno', text: 'Falha na comunicação. Tente novamente.', icon: 'error' });
+                }
+            }
+        };
+    </script>
+</body>
+</html>

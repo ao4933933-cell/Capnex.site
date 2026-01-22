@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Depósito</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-black: #0b0e11;
+            --card-dark: #1e2329;
+            --primary-red: #ff0000;
+            --accent-orange: #f0b90b; 
+            --text-main: #eaecef;
+            --text-muted: #848e9c;
+            --success-green: #00ff88;
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-black); 
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* --- HEADER ESTILO BAOPALS --- */
+        .header-top {
+            padding: 25px 20px;
+            background: linear-gradient(180deg, rgba(255,0,0,0.12) 0%, rgba(11,14,17,0) 100%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            width: 40px; height: 40px;
+            background: var(--card-dark);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .header-top h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* --- CONTEÚDO --- */
+        .container { padding: 20px; }
+
+        .info-card {
+            background: var(--card-dark);
+            border-radius: 24px;
+            padding: 22px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-red);
+            display: flex; gap: 15px;
+        }
+        .info-card i { color: var(--primary-red); font-size: 1.5rem; }
+        .info-card div h4 { font-size: 0.95rem; margin-bottom: 5px; }
+        .info-card div p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+
+        /* --- SELEÇÃO DE VALORES --- */
+        .label-section { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; padding-left: 5px; }
+
+        .amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .amount-item {
+            background: var(--card-dark);
+            border-radius: 18px;
+            padding: 18px 5px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .amount-item span { font-size: 0.9rem; font-weight: 800; }
+        .amount-item.active {
+            border-color: var(--primary-red);
+            background: rgba(255, 0, 0, 0.05);
+            color: var(--primary-red);
+            transform: scale(0.98);
+        }
+
+        /* --- INPUT CUSTOM --- */
+        .input-box {
+            background: var(--card-dark);
+            border-radius: 20px;
+            padding: 18px 22px;
+            margin-bottom: 30px;
+            display: flex; align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .input-box span { font-size: 1.2rem; font-weight: 800; color: var(--accent-orange); margin-right: 12px; }
+        .input-box input {
+            background: transparent; border: none; color: white;
+            font-size: 1.3rem; font-weight: 800; width: 100%;
+            outline: none;
+        }
+
+        /* --- BOTÃO --- */
+        .btn-confirm {
+            background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
+            color: white; border: none; border-radius: 20px;
+            width: 100%; padding: 20px; font-weight: 800; font-size: 1rem;
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.15);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            cursor: pointer;
+        }
+        .btn-confirm:active { transform: scale(0.96); }
+        .btn-confirm:disabled { opacity: 0.5; filter: grayscale(1); }
+
+        /* --- QR CODE CONTAINER --- */
+        #qr-display {
+            display: none;
+            background: var(--card-dark);
+            border-radius: 30px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #qrcode-canvas {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        .pix-raw {
+            background: rgba(0,0,0,0.2);
+            padding: 15px; border-radius: 12px;
+            font-size: 0.7rem; color: var(--text-muted);
+            word-break: break-all; margin-bottom: 20px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        .waiting-box {
+            margin-top: 20px; font-size: 0.8rem; color: var(--accent-orange);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* SweetAlert Custom */
+        .swal-baopals {
+            background: var(--card-dark) !important;
+            border-radius: 25px !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-screen">
+        <header class="header-top">
+            <a href="home.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+            <h1>Recarga de Saldo</h1>
+        </header>
+
+        <div class="container">
+            <div class="info-card animate__animated animate__fadeIn">
+                <i class="fas fa-shield-halved"></i>
+                <div>
+                    <h4>Segurança Bancária</h4>
+                    <p>O valor mínimo para recarga é de <b>R$ 30,00</b>. Seu saldo é atualizado instantaneamente.</p>
+                </div>
+            </div>
+
+            <p class="label-section">Valores Recomendados</p>
+            <div class="amount-grid animate__animated animate__fadeInUp">
+                <div class="amount-item" onclick="selectVal(30, this)"><span>R$ 30</span></div>
+                <div class="amount-item" onclick="selectVal(50, this)"><span>R$ 50</span></div>
+                <div class="amount-item" onclick="selectVal(100, this)"><span>R$ 100</span></div>
+                <div class="amount-item" onclick="selectVal(200, this)"><span>R$ 200</span></div>
+                <div class="amount-item" onclick="selectVal(500, this)"><span>R$ 500</span></div>
+                <div class="amount-item" onclick="selectVal(1000, this)"><span>R$ 1000</span></div>
+            </div>
+
+            <p class="label-section">Outro Valor</p>
+            <div class="input-box animate__animated animate__fadeInUp">
+                <span>R$</span>
+                <input type="number" id="valor-input" placeholder="30.00" min="30">
+            </div>
+
+            <button class="btn-confirm animate__animated animate__fadeInUp" id="btn-gerar" onclick="gerarPagamento()">
+                <i class="fas fa-qrcode"></i> GERAR PIX AGORA
+            </button>
+        </div>
+    </div>
+
+    <div id="qr-screen" class="container" style="display: none;">
+        <header class="header-top" style="padding: 25px 0;">
+            <button class="back-btn" onclick="window.location.reload()"><i class="fas fa-times"></i></button>
+            <h1>Pagamento Pendente</h1>
+        </header>
+
+        <div id="qr-display" class="animate__animated animate__zoomIn">
+            <div id="qrcode-canvas"></div>
+            
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Código Copia e Cola:</p>
+            <div class="pix-raw" id="pix-str">Carregando código...</div>
+
+            <button class="btn-confirm" onclick="copiarPix()" style="background: var(--card-dark); border: 1px solid var(--primary-red); color: white;">
+                <i class="fas fa-copy"></i> COPIAR CÓDIGO
+            </button>
+
+            <div class="waiting-box">
+                <i class="fas fa-spinner fa-spin"></i>
+                Aguardando confirmação do banco...
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, Timestamp, query, where, onSnapshot, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // CONFIGURAÇÃO FIREBASE CAPNEX
+        const firebaseConfig = {
+          apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+          authDomain: "capnex-c6447.firebaseapp.com",
+          projectId: "capnex-c6447",
+          storageBucket: "capnex-c6447.firebasestorage.app",
+          messagingSenderId: "314835497580",
+          appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let uidUser = null;
+        let userData = null;
+        let pixCopiaECola = "";
+        const gatewayURL = 'https://eoj436mi1cazadb.m.pipedream.net'; // Seu Pipedream
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                uidUser = user.uid;
+                const snap = await getDoc(doc(db, "usuarios", uidUser));
+                userData = snap.data();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        window.selectVal = function(v, el) {
+            document.getElementById('valor-input').value = v;
+            document.querySelectorAll('.amount-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        window.gerarPagamento = async function() {
+            const valor = parseFloat(document.getElementById('valor-input').value);
+            const btn = document.getElementById('btn-gerar');
+
+            if (isNaN(valor) || valor < 30) {
+                Swal.fire({ icon: 'error', title: 'Valor Mínimo', text: 'O depósito mínimo é de R$ 30,00', background: '#1e2329', color: '#fff' });
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESSANDO...';
+
+            try {
+                const response = await fetch(gatewayURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: valor,
+                        userId: uidUser,
+                        userName: userData.nome || "Cliente CapNex",
+                        userEmail: auth.currentUser.email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.pix_code) {
+                    pixCopiaECola = data.pix_code;
+                    document.getElementById('main-screen').style.display = 'none';
+                    document.getElementById('qr-screen').style.display = 'block';
+                    document.getElementById('qr-display').style.display = 'block';
+                    document.getElementById('pix-str').innerText = pixCopiaECola;
+
+                    // Gerar QR Code Visual
+                    new QRCode(document.getElementById("qrcode-canvas"), {
+                        text: pixCopiaECola,
+                        width: 200, height: 200,
+                        colorDark : "#000000", colorLight : "#ffffff"
+                    });
+
+                    ouvirConfirmacao();
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> TENTAR NOVAMENTE';
+                console.error(err);
+            }
+        };
+
+        function ouvirConfirmacao() {
+            const q = query(
+                collection(db, "historico"),
+                where("userId", "==", uidUser),
+                orderBy("data", "desc"),
+                limit(1)
+            );
+
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(async (change) => {
+                    const trans = change.doc.data();
+                    if (trans.status === "concluido" && trans.tipo.includes("Depósito")) {
+                        // Lógica de Comissão de Rede (Primeiro Depósito)
+                        if (!userData.primeiroDeposito) {
+                            await processarComissao(trans.valor);
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'PAGAMENTO CONFIRMADO',
+                            text: 'Seu saldo foi atualizado com sucesso!',
+                            background: '#1e2329',
+                            color: '#fff',
+                            confirmButtonColor: '#ff0000'
+                        }).then(() => window.location.href = "home.html");
+                    }
+                });
+            });
+        }
+
+        async function processarComissao(valorDep) {
+            if (userData.indicadoPor) {
+                const bonus = valorDep * 0.10; // 10% de bônus para o patrocinador
+                const ref = doc(db, "usuarios", userData.indicadoPor);
+                await updateDoc(ref, {
+                    saldoLucro: increment(bonus),
+                    totalGanhos: increment(bonus)
+                });
+                await addDoc(collection(db, "historico"), {
+                    userId: userData.indicadoPor,
+                    valor: bonus,
+                    tipo: "Bônus de Indicação",
+                    data: Timestamp.now(),
+                    status: "concluido"
+                });
+            }
+            await updateDoc(doc(db, "usuarios", uidUser), { primeiroDeposito: true });
+        }
+
+        window.copiarPix = function() {
+            navigator.clipboard.writeText(pixCopiaECola);
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copiado!', showConfirmButton: false, timer: 1500 });
+        }
+    </script>
+</body>
+</html>

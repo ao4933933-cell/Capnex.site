@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Meu Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-dark: #0f141e;
+            --primary-red: #ff4d4d;
+            --card-gray: #1e2533;
+            --text-white: #ffffff;
+            --text-muted: #8e94a3;
+            --nav-bg: #181d29;
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-white);
+            padding-bottom: 120px;
+            background-image: radial-gradient(circle at 50% -20%, #2c1010 0%, #0f141e 60%);
+            min-height: 100vh;
+        }
+
+        /* --- HEADER DO PERFIL (TOP SECTION) --- */
+        .profile-top {
+            padding: 50px 20px 30px;
+            text-align: center;
+        }
+
+        .avatar-container {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #1e2533 0%, #111827 100%);
+            border-radius: 30px; 
+            border: 2px solid var(--primary-red);
+            position: relative;
+            box-shadow: 0 10px 25px rgba(255, 77, 77, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Iniciais do Usuário no Avatar */
+        .user-initials {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--primary-red);
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        .user-details h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
+        .user-details p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+        .vip-badge {
+            display: inline-block;
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--primary-red);
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        /* --- CARDS DE ATIVOS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--card-gray);
+            padding: 20px 15px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+        }
+        .stat-card small { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .stat-card strong { font-size: 1.1rem; color: #fff; font-weight: 800; }
+
+        /* --- LISTA DE MENU --- */
+        .menu-container { padding: 0 20px; }
+        .menu-group {
+            background: var(--card-gray);
+            border-radius: 28px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-white);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: 0.2s;
+        }
+        .menu-link:last-child { border-bottom: none; }
+        .menu-link:active { background: rgba(255, 255, 255, 0.02); }
+
+        .menu-icon {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px; color: var(--primary-red);
+            font-size: 1.1rem;
+        }
+
+        .menu-text { flex: 1; font-size: 0.9rem; font-weight: 600; }
+        .menu-arrow { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* --- BOTÃO LOGOUT --- */
+        .logout-btn {
+            margin: 10px 20px 40px;
+            background: rgba(255, 77, 77, 0.05);
+            color: var(--primary-red);
+            border: 1px solid rgba(255, 77, 77, 0.2);
+            padding: 18px;
+            border-radius: 22px;
+            width: calc(100% - 40px);
+            font-size: 0.9rem; font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        /* --- NAV BOTTOM --- */
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 25px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            flex: 1;
+        }
+        .nav-item.active { color: var(--primary-red); }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <section class="profile-top animate__animated animate__fadeIn">
+        <div class="avatar-container" id="avatar-box">
+            <div class="user-initials" id="avatar-initials">CN</div>
+        </div>
+        <div class="user-details">
+            <h2 id="display-nome">Sincronizando...</h2>
+            <p id="display-email">Carregando conta...</p>
+            <div class="vip-badge">Protocolo Elite Ativo</div>
+        </div>
+    </section>
+
+    <div class="stats-grid animate__animated animate__fadeInUp">
+        <div class="stat-card">
+            <small>Ativos Totais</small>
+            <strong id="stat-saldo">R$ 0,00</strong>
+        </div>
+        <div class="stat-card">
+            <small>Sua Rede</small>
+            <strong id="stat-indicados">0 Afiliados</strong>
+        </div>
+    </div>
+
+    <div class="menu-container animate__animated animate__fadeInUp">
+        <div class="menu-group">
+            <a href="deposito.html" class="menu-link">
+                <div class="menu-icon"><i class="fas fa-wallet"></i></div>
+                <div class="menu-text">Aporte de Ativos</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+            <a href="saque.html" class="menu-link">
+                <div class="menu-icon"><i class="fas fa-arrow-up-right-from-square"></i></div>
+                <div class="menu-text">Retirada de Lucros</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+            <a href="transacoes.html" class="menu-link">
+                <div class="menu-icon"><i class="fas fa-list-ul"></i></div>
+                <div class="menu-text">Histórico de Operações</div>
+                <div class="menu-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+        </div>
+
+        <div class="menu-group">
+            <a href="https://chat.whatsapp.com/ImKW1xKlnT8H54XtaRtmOF" target="_blank" class="menu-link">
+                <div class="menu-icon" style="color: #25D366;"><i class="fab fa-whatsapp"></i></div>
+                <div class="menu-text">Comunidade Nexus</div>
+                <div class="menu-arrow"><i class="fas fa-external-link-alt"></i></div>
+            </a>
+            <a href="http://wa.me/5511979858081" target="_blank" class="menu-link">
+                <div class="menu-icon" style="color: #25D366;"><i class="fas fa-headset"></i></div>
+                <div class="menu-text">Suporte Especializado</div>
+                <div class="menu-arrow"><i class="fas fa-external-link-alt"></i></div>
+            </a>
+        </div>
+    </div>
+
+    <button class="logout-btn" id="btnLogout">Desconectar Sistema</button>
+
+    <nav class="nav-bottom">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Painel</span></a>
+        <a href="planos.html" class="nav-item"><i class="fas fa-gem"></i><span>Planos</span></a>
+        <a href="recompensas.html" class="nav-item"><i class="fas fa-gift"></i><span>Bônus</span></a>
+        <a href="indicacao.html" class="nav-item"><i class="fas fa-users"></i><span>Rede</span></a>
+        <a href="perfil.html" class="nav-item active"><i class="fas fa-user"></i><span>Perfil</span></a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Função para extrair iniciais
+        function getInitials(name) {
+            if (!name) return "CN";
+            const parts = name.trim().split(" ");
+            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('display-email').innerText = user.email;
+
+                try {
+                    const userRef = doc(db, "usuarios", user.uid);
+                    const snap = await getDoc(userRef);
+                    if(snap.exists()){
+                        const d = snap.data();
+                        const nomeUsuario = d.nome || "Membro CapNex";
+                        
+                        // Atualizar Nome e Iniciais no Avatar
+                        document.getElementById('display-nome').innerText = nomeUsuario;
+                        document.getElementById('avatar-initials').innerText = getInitials(nomeUsuario);
+                        
+                        const saldoTotal = (Number(d.saldo) || 0) + (Number(d.saldoLucro) || 0);
+                        
+                        // Formatação rigorosa de 2 casas decimais
+                        document.getElementById('stat-saldo').innerText = `R$ ${saldoTotal.toLocaleString('pt-BR', { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                        })}`;
+                        
+                        const totalRede = (d.indicadosCount || 0) + (d.indicadosL2Count || 0) + (d.indicadosL3Count || 0);
+                        document.getElementById('stat-indicados').innerText = `${totalRede} Afiliados`;
+                    }
+                } catch (err) { console.error(err); }
+            } else { window.location.href = "index.html"; }
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            const result = await Swal.fire({
+                title: 'Encerrar Sessão?',
+                text: "Suas operações continuam ativas.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4d4d',
+                cancelButtonColor: '#2a313d',
+                confirmButtonText: 'Sair',
+                background: '#1e2533',
+                color: '#fff'
+            });
+
+            if (result.isConfirmed) {
+                signOut(auth).then(() => { window.location.href = "index.html"; });
+            }
+        });
+    </script>
+</body>
+</html>

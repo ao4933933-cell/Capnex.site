@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Recompensas de Presença</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-dark: #0f141e;
+            --primary-red: #ff4d4d;
+            --primary-dark-red: #b30000;
+            --card-gray: #1e2533;
+            --text-white: #ffffff;
+            --text-muted: #8e94a3;
+            --nav-bg: #181d29;
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-white);
+            padding-bottom: 120px;
+            background-image: radial-gradient(circle at 50% -20%, #2c1010 0%, #0f141e 60%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- ESTILO PREMIUM SWEETALERT --- */
+        .capnex-popup {
+            background: #1e2533 !important;
+            border-radius: 25px !important;
+            border: 1px solid var(--primary-red) !important;
+        }
+        .capnex-title {
+            color: white !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px;
+        }
+        .capnex-content {
+            color: var(--text-muted) !important;
+        }
+        .capnex-confirm {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-dark-red)) !important;
+            border-radius: 15px !important;
+            padding: 12px 35px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3) !important;
+        }
+
+        /* --- HEADER --- */
+        .header-section {
+            padding: 30px 20px 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-section h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+        
+        .balance-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 12px;
+            text-align: right;
+            border: 1px solid var(--glass-border);
+        }
+        .balance-box small { display: block; font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+        .balance-box strong { color: var(--primary-red); font-size: 1rem; }
+
+        /* --- CONTAINER --- */
+        .reward-container {
+            padding: 0 15px;
+            margin-top: 10px;
+        }
+
+        .baopals-card {
+            background: var(--card-gray);
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 5px;
+        }
+        .card-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .card-header h3 i { color: var(--primary-red); }
+        .card-header span { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 10px; }
+
+        /* GRADE COMPLETA 30 DIAS */
+        .checkin-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .day-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            aspect-ratio: 1/1.2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .day-item span { font-size: 0.5rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; text-transform: uppercase; }
+        .day-item strong { font-size: 0.8rem; color: #fff; }
+
+        .day-item.completed { 
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-dark-red)); 
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.2);
+        }
+        .day-item.completed span, .day-item.completed strong { color: #fff; }
+        .day-item.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.5rem;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+        }
+
+        .day-item.current { 
+            border: 2px solid var(--primary-red); 
+            background: rgba(255, 77, 77, 0.1); 
+            transform: scale(1.08); 
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.2);
+        }
+        .day-item.current strong { color: var(--primary-red); }
+
+        .btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-dark-red));
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 25px rgba(255, 77, 77, 0.3);
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-action:disabled { background: #2a313d; color: #5a6270; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
+        .btn-action:active:not(:disabled) { transform: scale(0.96); }
+
+        .rules-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .rules-card h4 { font-size: 0.8rem; margin-bottom: 10px; color: var(--text-white); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .rules-card h4 i { color: var(--primary-red); }
+        .rules-card p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
+
+        /* --- NAV BOTTOM --- */
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 25px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            flex: 1; transition: 0.3s;
+        }
+        .nav-item.active { color: var(--primary-red); }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+
+        /* Elementos Ocultos Inicialmente para Animação */
+        .reward-container, .header-section { opacity: 0; }
+        .visible { opacity: 1 !important; }
+    </style>
+</head>
+<body>
+
+    <header class="header-section animate__animated animate__fadeInDown">
+        <h2>Recompensas</h2>
+        <div class="balance-box">
+            <small>Saldo de Bônus</small>
+            <strong id="user-saldo">R$ 0,00</strong>
+        </div>
+    </header>
+
+    <main class="reward-container animate__animated animate__fadeInUp">
+        <section class="baopals-card">
+            <div class="card-header">
+                <h3><i class="fas fa-gem"></i> Ciclo de Fidelidade</h3>
+                <span id="streak-info">Sincronizando...</span>
+            </div>
+            
+            <div class="checkin-grid" id="calendar-grid">
+                </div>
+
+            <button class="btn-action" id="btn-checkin" onclick="realizarCheckin()">
+                <i class="fas fa-fingerprint"></i> Coletar Recompensa Diária
+            </button>
+        </section>
+
+        <section class="rules-card">
+            <h4><i class="fas fa-shield-halved"></i> Como funciona?</h4>
+            <p>1. <b>Validação:</b> Acesse o portal diariamente para validar sua atividade.</p>
+            <p>2. <b>Sincronização:</b> Clique no botão de coleta para transferir o bônus ao seu saldo.</p>
+            <p>3. <b>Renovação:</b> O ciclo reinicia automaticamente após o 30º dia consecutivo.</p>
+            <p>4. <b>Rendimentos:</b> Ganhos escaláveis entre R$ 0,40 e R$ 1,20 por conexão bem-sucedida.</p>
+        </section>
+    </main>
+
+    <nav class="nav-bottom">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Início</span></a>
+        <a href="planos.html" class="nav-item"><i class="fas fa-gem"></i><span>Planos</span></a>
+        <a href="recompensas.html" class="nav-item active"><i class="fas fa-gift"></i><span>Bônus</span></a>
+        <a href="indicacao.html" class="nav-item"><i class="fas fa-users"></i><span>Rede</span></a>
+        <a href="perfil.html" class="nav-item"><i class="fas fa-user"></i><span>Perfil</span></a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, increment, serverTimestamp, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userUid = null;
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                userUid = user.uid;
+                // Exibe a página com animação
+                document.querySelector('.header-section').classList.add('visible');
+                document.querySelector('.reward-container').classList.add('visible');
+                syncUserData();
+            } else { window.location.href = "login.html"; }
+        });
+
+        function syncUserData() {
+            onSnapshot(doc(db, "usuarios", userUid), (snap) => {
+                if(snap.exists()){
+                    const data = snap.data();
+                    document.getElementById('user-saldo').innerText = `R$ ${(data.saldoLucro || 0).toFixed(2)}`;
+                    
+                    const checkinCount = data.checkinCount || 0;
+                    const ultimoCheckin = data.ultimoCheckin;
+
+                    let jaFezHoje = false;
+                    if (ultimoCheckin) {
+                        const hoje = new Date().toDateString();
+                        jaFezHoje = ultimoCheckin.toDate().toDateString() === hoje;
+                    }
+
+                    let diaNoCiclo = (checkinCount % 30);
+                    if (!jaFezHoje) diaNoCiclo += 1;
+                    else if (diaNoCiclo === 0) diaNoCiclo = 30;
+
+                    document.getElementById('streak-info').innerText = `Dia ${diaNoCiclo} de 30`;
+                    renderCalendar(diaNoCiclo, jaFezHoje);
+                }
+            });
+        }
+
+        function renderCalendar(diaNoCiclo, jaFezHoje) {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            for(let i=1; i<=30; i++) {
+                let statusClass = "";
+                if(i < diaNoCiclo) {
+                    statusClass = "completed";
+                } else if(i === diaNoCiclo) {
+                    statusClass = jaFezHoje ? "completed" : "current";
+                }
+                
+                // Adicionando animação individual para cada dia
+                const delay = (i % 6) * 0.05;
+                grid.innerHTML += `
+                    <div class="day-item ${statusClass} animate__animated animate__zoomIn" style="animation-delay: ${delay}s">
+                        <span>Dia</span>
+                        <strong>${i}</strong>
+                    </div>
+                `;
+            }
+
+            const btn = document.getElementById('btn-checkin');
+            if(jaFezHoje) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-check"></i> Recompensa Coletada';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-fingerprint"></i> Coletar Recompensa Diária';
+            }
+        }
+
+        window.realizarCheckin = async () => {
+            const btn = document.getElementById('btn-checkin');
+            if(btn.disabled) return;
+            btn.disabled = true;
+
+            const premio = (Math.random() * (1.20 - 0.40) + 0.40);
+            
+            try {
+                const userRef = doc(db, "usuarios", userUid);
+                
+                await updateDoc(userRef, {
+                    saldoLucro: increment(premio),
+                    ultimoCheckin: serverTimestamp(),
+                    checkinCount: increment(1)
+                });
+
+                await addDoc(collection(db, "historico"), {
+                    userId: userUid,
+                    tipo: "Check-in Diário",
+                    valor: premio,
+                    data: serverTimestamp()
+                });
+
+                // --- ALERTA PREMIUM CUSTOMIZADO ---
+                Swal.fire({ 
+                    icon: 'success',
+                    iconColor: '#ff4d4d',
+                    title: 'BÔNUS CREDITADO', 
+                    html: `<b>R$ ${premio.toFixed(2)}</b> foi adicionado ao seu saldo de ativos com sucesso!`,
+                    background: '#1e2533',
+                    color: '#fff',
+                    confirmButtonText: 'CONCLUIR',
+                    customClass: {
+                        popup: 'capnex-popup',
+                        title: 'capnex-title',
+                        htmlContainer: 'capnex-content',
+                        confirmButton: 'capnex-confirm'
+                    },
+                    buttonsStyling: false,
+                    showClass: {
+                        popup: 'animate__animated animate__bounceIn'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutDown'
+                    }
+                });
+
+            } catch (e) { 
+                btn.disabled = false;
+                console.error("Erro no check-in:", e); 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ERRO NA COLETA',
+                    text: 'Não foi possível processar seu bônus. Tente novamente.',
+                    background: '#1e2533',
+                    color: '#fff',
+                    confirmButtonColor: '#ff4d4d'
+                });
+            }
+        };
+    </script>
+</body>
+</html>

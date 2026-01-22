@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Saque Premium</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-black: #050505;
+            --card-dark: #121214;
+            --primary-red: #FF3B30;
+            --accent-yellow: #FFD60A;
+            --text-main: #FFFFFF;
+            --text-muted: #8E8E93;
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --success: #34C759;
+            --danger: #FF3B30;
+            --input-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background: var(--bg-black); 
+            color: var(--text-main); 
+            padding-bottom: 40px;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .grow-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .grow-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Personalização Premium SweetAlert */
+        .capnex-swal-popup {
+            background: #0f0f11 !important;
+            border: 1px solid rgba(255, 59, 48, 0.2) !important;
+            border-radius: 24px !important;
+            padding: 2em !important;
+        }
+        .capnex-swal-title {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+        }
+        .capnex-swal-content {
+            color: #8E8E93 !important;
+        }
+        .capnex-swal-confirm {
+            background: var(--primary-red) !important;
+            border-radius: 14px !important;
+            padding: 12px 30px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            box-shadow: 0 10px 20px rgba(255, 59, 48, 0.2) !important;
+        }
+        .capnex-swal-cancel {
+            background: rgba(255,255,255,0.05) !important;
+            color: #fff !important;
+            border-radius: 14px !important;
+            font-weight: 600 !important;
+        }
+
+        /* Header Premium */
+        .header-top {
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-back {
+            color: var(--text-main);
+            font-size: 1.2rem;
+            text-decoration: none;
+            background: var(--card-dark);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+
+        .btn-back:active { transform: scale(0.9); }
+
+        .brand-area { text-align: right; }
+        .brand-area span { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .brand-area h2 { font-size: 1.1rem; font-weight: 800; color: var(--primary-red); }
+
+        /* Card de Saldo */
+        .withdraw-header-card {
+            margin: 0 20px 25px;
+            background: linear-gradient(145deg, #1a1a1c 0%, #0a0a0a 100%);
+            padding: 30px 25px;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .withdraw-header-card::after {
+            content: ''; position: absolute; bottom: 0; right: 0;
+            width: 100px; height: 100px; background: var(--primary-red);
+            filter: blur(80px); opacity: 0.1;
+        }
+
+        .withdraw-header-card label {
+            display: block; font-size: 0.75rem; color: var(--text-muted);
+            margin-bottom: 8px; font-weight: 600;
+        }
+
+        .withdraw-header-card h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+        .withdraw-header-card .limit-info { font-size: 0.8rem; color: var(--success); margin-top: 10px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+        /* Formulário */
+        .content-body { padding: 0 20px; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label {
+            display: block; font-size: 0.8rem; color: var(--text-muted);
+            margin-bottom: 10px; font-weight: 700; padding-left: 5px;
+        }
+
+        .custom-input {
+            background: var(--card-dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+        }
+
+        .custom-input:focus-within { border-color: var(--primary-red); background: rgba(255,59,48,0.03); }
+
+        .custom-input i { color: var(--primary-red); font-size: 1.1rem; width: 20px; text-align: center; }
+        .custom-input input, .custom-input select {
+            background: none; border: none; color: white; width: 100%;
+            font-size: 1rem; font-weight: 600; outline: none;
+        }
+
+        /* Seletor PIX Premium */
+        .pix-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pix-option {
+            background: var(--card-dark);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .pix-option i { display: block; font-size: 1.2rem; margin-bottom: 8px; color: var(--text-muted); }
+        .pix-option span { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+
+        .pix-option.active {
+            border-color: var(--primary-red);
+            background: rgba(255, 59, 48, 0.05);
+        }
+        .pix-option.active i, .pix-option.active span { color: var(--primary-red); }
+
+        /* Quick Values */
+        .quick-values {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px; margin-top: 15px;
+        }
+
+        .q-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px; border-radius: 14px;
+            font-size: 0.85rem; font-weight: 700;
+            transition: 0.2s; cursor: pointer;
+        }
+
+        .q-btn:active { background: var(--primary-red); border-color: var(--primary-red); }
+
+        /* Box de Resumo */
+        .summary-box {
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px dashed var(--glass-border);
+        }
+
+        .summary-line {
+            display: flex; justify-content: space-between;
+            margin-bottom: 10px; font-size: 0.85rem;
+        }
+        .summary-line:last-child { margin-bottom: 0; padding-top: 10px; border-top: 1px solid var(--glass-border); font-weight: 800; font-size: 1rem; }
+
+        /* Status de Horário */
+        .time-lock-status {
+            padding: 15px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 0.8rem; font-weight: 700; margin-bottom: 25px;
+        }
+        .lock-open { background: rgba(52, 199, 89, 0.08); color: var(--success); }
+        .lock-closed { background: rgba(255, 59, 48, 0.08); color: var(--danger); }
+
+        /* Botão Final */
+        .btn-main {
+            width: 100%; padding: 22px;
+            border-radius: 22px; border: none;
+            font-size: 1rem; font-weight: 900;
+            text-transform: uppercase; cursor: pointer;
+            transition: 0.4s;
+            margin-top: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            letter-spacing: 1px;
+        }
+
+        .btn-active { background: var(--primary-red); color: white; box-shadow: 0 15px 30px rgba(255, 59, 48, 0.3); }
+        .btn-disabled { background: #1a1a1c; color: #333; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-top grow-reveal">
+        <a href="home.html" class="btn-back">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <div class="brand-area">
+            <span>Portal de Retirada</span>
+            <h2>CapNex Premium</h2>
+        </div>
+    </header>
+
+    <div class="withdraw-header-card grow-reveal">
+        <label>Saldo Disponível para Saque</label>
+        <h1 id="max-balance">R$ 0,00</h1>
+        <div class="limit-info">
+            <i class="fa-solid fa-circle-check"></i>
+            Liberação imediata via PIX
+        </div>
+    </div>
+
+    <main class="content-body">
+        
+        <div id="time-status-box" class="time-lock-status grow-reveal">
+            <i id="time-icon" class="fa-solid fa-spinner fa-spin"></i>
+            <span id="time-text">Sincronizando...</span>
+        </div>
+
+        <div class="input-group grow-reveal">
+            <label>1. Selecione o Tipo de Chave</label>
+            <div class="pix-selector-grid">
+                <div class="pix-option" onclick="selectPixType('CPF', this)">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>CPF</span>
+                </div>
+                <div class="pix-option" onclick="selectPixType('E-mail', this)">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>E-mail</span>
+                </div>
+                <div class="pix-option" onclick="selectPixType('Telefone', this)">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                    <span>Celular</span>
+                </div>
+                <div class="pix-option" onclick="selectPixType('Aleatória', this)">
+                    <i class="fa-solid fa-shuffle"></i>
+                    <span>Aleatória</span>
+                </div>
+            </div>
+            <div class="custom-input">
+                <i class="fa-solid fa-key"></i>
+                <input type="text" id="input-pix" placeholder="Insira a chave selecionada">
+            </div>
+        </div>
+
+        <div class="input-group grow-reveal">
+            <label>2. Valor do Resgate (Mín. R$ 35,00)</label>
+            <div class="custom-input">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <input type="number" id="input-amount" placeholder="0,00" oninput="calculateFees()">
+            </div>
+            <div class="quick-values">
+                <button class="q-btn" onclick="setVal(50)">R$ 50</button>
+                <button class="q-btn" onclick="setVal(100)">R$ 100</button>
+                <button class="q-btn" onclick="setVal(250)">R$ 250</button>
+            </div>
+        </div>
+
+        <div class="summary-box grow-reveal">
+            <div class="summary-line">
+                <span>Taxa de Processamento (10%)</span>
+                <span id="tax-value" style="color: var(--danger);">- R$ 0,00</span>
+            </div>
+            <div class="summary-line">
+                <span>Tempo estimado</span>
+                <span style="color: var(--success);">Instantâneo</span>
+            </div>
+            <div class="summary-line">
+                <span>Total a Receber</span>
+                <span id="net-value" style="color: var(--success);">R$ 0,00</span>
+            </div>
+        </div>
+
+        <button id="btn-withdraw" class="btn-main btn-disabled grow-reveal" disabled>
+            <i class="fa-solid fa-bolt-lightning"></i>
+            Confirmar Retirada
+        </button>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, increment, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentBalance = 0;
+        let canWithdraw = false;
+        let selectedPixType = "";
+        let userDisplayName = "";
+
+        // Helper para Alertas Premium CapNex
+        const CapNexAlert = {
+            fire: (config) => {
+                return Swal.fire({
+                    customClass: {
+                        popup: 'capnex-swal-popup',
+                        title: 'capnex-swal-title',
+                        htmlContainer: 'capnex-swal-content',
+                        confirmButton: 'capnex-swal-confirm',
+                        cancelButton: 'capnex-swal-cancel'
+                    },
+                    buttonsStyling: false,
+                    showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
+                    hideClass: { popup: 'animate__animated animate__zoomOut animate__faster' },
+                    ...config
+                });
+            }
+        };
+
+        window.selectPixType = (type, element) => {
+            selectedPixType = type;
+            document.querySelectorAll('.pix-option').forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('input-pix').placeholder = `Digite seu ${type}`;
+        };
+
+        window.calculateFees = () => {
+            const amount = parseFloat(document.getElementById('input-amount').value) || 0;
+            const tax = amount * 0.10;
+            const net = amount - tax;
+
+            document.getElementById('tax-value').innerText = `- R$ ${tax.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('net-value').innerText = `R$ ${net.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        };
+
+        window.setVal = (v) => {
+            document.getElementById('input-amount').value = v;
+            calculateFees();
+        };
+
+        function updateTimeLock() {
+            const now = new Date();
+            const hour = now.getHours();
+            const statusBox = document.getElementById('time-status-box');
+            const icon = document.getElementById('time-icon');
+            const text = document.getElementById('time-text');
+            const btn = document.getElementById('btn-withdraw');
+
+            const isOpen = hour >= 9 && hour < 17;
+
+            if (isOpen) {
+                statusBox.className = "time-lock-status lock-open animate__animated animate__fadeIn";
+                icon.className = "fa-solid fa-circle-check";
+                text.innerText = "Sistema Online: 09h às 17h";
+                canWithdraw = true;
+                btn.disabled = false;
+                btn.classList.replace('btn-disabled', 'btn-active');
+            } else {
+                statusBox.className = "time-lock-status lock-closed animate__animated animate__pulse";
+                icon.className = "fa-solid fa-clock";
+                text.innerText = "Fora de Horário (Abre às 09:00)";
+                canWithdraw = false;
+                btn.disabled = true;
+                btn.classList.replace('btn-active', 'btn-disabled');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onSnapshot(doc(db, "usuarios", user.uid), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        currentBalance = data.saldoLucro || 0;
+                        userDisplayName = data.nome || "Membro CapNex";
+                        document.getElementById('max-balance').innerText = `R$ ${currentBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    }
+                });
+                updateTimeLock();
+                triggerGrowReveal();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        function triggerGrowReveal() {
+            const items = document.querySelectorAll('.grow-reveal');
+            items.forEach((item, index) => {
+                setTimeout(() => item.classList.add('active'), index * 80);
+            });
+        }
+
+        document.getElementById('btn-withdraw').onclick = async () => {
+            const amount = parseFloat(document.getElementById('input-amount').value);
+            const pixKey = document.getElementById('input-pix').value;
+            const tax = amount * 0.10;
+            const netValue = amount - tax;
+
+            if (!canWithdraw) return;
+
+            if (!selectedPixType) {
+                return CapNexAlert.fire({ icon: 'warning', iconColor: '#FF3B30', title: 'Atenção', text: 'Selecione o tipo de chave PIX primeiro.' });
+            }
+            if (isNaN(amount) || amount < 35) {
+                return CapNexAlert.fire({ icon: 'error', iconColor: '#FF3B30', title: 'Valor Inválido', text: 'O valor mínimo para resgate é R$ 35,00.' });
+            }
+            if (amount > currentBalance) {
+                return CapNexAlert.fire({ icon: 'error', iconColor: '#FF3B30', title: 'Saldo Insuficiente', text: 'Você não possui saldo de lucro suficiente para este saque.' });
+            }
+            if (!pixKey || pixKey.length < 5) {
+                return CapNexAlert.fire({ icon: 'error', iconColor: '#FF3B30', title: 'Chave Inválida', text: 'Por favor, insira uma chave PIX válida.' });
+            }
+
+            const confirm = await CapNexAlert.fire({
+                title: 'Confirmar Resgate?',
+                html: `
+                    <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.05)">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+                            <span style="opacity:0.6">Valor Bruto:</span>
+                            <span>R$ ${amount.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#FF3B30">
+                            <span style="opacity:0.6">Taxa (10%):</span>
+                            <span>- R$ ${tax.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-weight:800; border-top: 1px solid rgba(255,255,255,0.1); pt-8; margin-top:8px">
+                            <span>VALOR LÍQUIDO:</span>
+                            <span style="color:#34C759">R$ ${netValue.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.8rem; opacity: 0.5">Destino: ${pixKey} (${selectedPixType})</p>
+                `,
+                icon: 'question',
+                iconColor: '#FF3B30',
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar Saque',
+                cancelButtonText: 'Revisar'
+            });
+
+            if (confirm.isConfirmed) {
+                CapNexAlert.fire({ 
+                    title: 'Processando...', 
+                    text: 'Estamos validando sua transação.',
+                    allowOutsideClick: false, 
+                    didOpen: () => Swal.showLoading() 
+                });
+
+                try {
+                    const userRef = doc(db, "usuarios", auth.currentUser.uid);
+                    await updateDoc(userRef, { saldoLucro: increment(-amount) });
+
+                    await addDoc(collection(db, "historico"), {
+                        userId: auth.currentUser.uid,
+                        valorTotal: amount,
+                        taxa: tax,
+                        valorLiquido: netValue,
+                        tipo: "Saque Premium",
+                        status: "PENDENTE",
+                        chave: pixKey,
+                        tipoChave: selectedPixType,
+                        data: Timestamp.now()
+                    });
+
+                    await addDoc(collection(db, "saques"), {
+                        uid: auth.currentUser.uid,
+                        cliente: userDisplayName,
+                        bruto: amount,
+                        taxa: tax,
+                        liquido: netValue,
+                        pix: pixKey,
+                        tipo: selectedPixType,
+                        status: "pendente",
+                        data: Timestamp.now()
+                    });
+
+                    await CapNexAlert.fire({ 
+                        icon: 'success', 
+                        iconColor: '#34C759',
+                        title: 'Sucesso!', 
+                        text: 'Sua solicitação foi enviada para o departamento financeiro.',
+                    });
+                    
+                    window.location.href = "home.html";
+
+                } catch (e) {
+                    CapNexAlert.fire({ icon: 'error', iconColor: '#FF3B30', title: 'Erro de Sistema', text: 'Não foi possível completar o pedido. Tente novamente mais tarde.' });
+                }
+            }
+        };
+
+        setInterval(updateTimeLock, 30000);
+    </script>
+</body>
+</html>
+
+Retire a trava de Horário

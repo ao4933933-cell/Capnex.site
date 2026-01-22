@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Histórico de Operações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-dark: #0f141e;
+            --primary-red: #ff4d4d;
+            --card-gray: #1e2533;
+            --text-white: #ffffff;
+            --text-muted: #8e94a3;
+            --nav-bg: #181d29;
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --success: #00ff88;
+            --danger: #ff4d4d;
+            --warning: #f39c12;
+            --gold: #ffd700;
+            --blue-info: #3498db;
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-white);
+            padding-bottom: 110px;
+            background-image: radial-gradient(circle at 50% -20%, #2c1010 0%, #0f141e 60%);
+            min-height: 100vh;
+        }
+
+        .header-top {
+            padding: 30px 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: var(--bg-dark);
+            z-index: 100;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--card-gray);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid var(--glass-border);
+        }
+
+        .header-top h2 { font-size: 1.2rem; font-weight: 800; }
+
+        .tabs-container {
+            padding: 0 20px 15px;
+            overflow-x: auto;
+            display: flex;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+        .tabs-container::-webkit-scrollbar { display: none; }
+
+        .tab-item {
+            padding: 10px 18px;
+            background: var(--card-gray);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            background: var(--primary-red);
+            color: #fff;
+            border-color: var(--primary-red);
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.2);
+        }
+
+        .history-list { padding: 10px 20px; }
+
+        .date-divider {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 25px 0 15px 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .date-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
+
+        .transaction-item {
+            background: var(--card-gray);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            border: 1px solid var(--glass-border);
+            transition: 0.2s;
+        }
+
+        .trans-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .icon-deposito { background: rgba(0, 255, 136, 0.1); color: var(--success); }
+        .icon-rendimento { background: rgba(52, 152, 219, 0.1); color: var(--blue-info); }
+        .icon-saque { background: rgba(255, 77, 77, 0.1); color: var(--danger); }
+        .icon-ativacao { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
+        .icon-comissao { background: rgba(255, 215, 0, 0.1); color: var(--gold); }
+
+        .trans-meta { flex: 1; }
+        .trans-meta h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+        .trans-meta span { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+
+        .trans-value { text-align: right; }
+        .val-amount { font-size: 1rem; font-weight: 800; margin-bottom: 4px; display: block; }
+        .val-status { 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            padding: 2px 8px; 
+            border-radius: 6px;
+        }
+        .status-success { color: var(--success); background: rgba(0, 255, 136, 0.05); }
+        .status-pending { color: var(--warning); background: rgba(243, 156, 18, 0.05); }
+        .status-fail { color: var(--danger); background: rgba(255, 77, 77, 0.05); }
+
+        .skeleton-item {
+            height: 80px;
+            background: var(--card-gray);
+            border-radius: 24px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 50% { opacity: 0.2; } }
+
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 25px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            flex: 1; transition: 0.3s;
+        }
+        .nav-item.active { color: var(--primary-red); }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <header class="header-top">
+        <a href="perfil.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+        <h2>Operações</h2>
+        <div style="width: 40px;"></div>
+    </header>
+
+    <div class="tabs-container">
+        <div class="tab-item active" onclick="filtrar('todos', event)">Tudo</div>
+        <div class="tab-item" onclick="filtrar('deposito', event)">Aportes</div>
+        <div class="tab-item" onclick="filtrar('lucros', event)">Lucros</div>
+        <div class="tab-item" onclick="filtrar('saque', event)">Resgates</div>
+        <div class="tab-item" onclick="filtrar('ativação', event)">Protocolos</div>
+    </div>
+
+    <main class="history-list" id="lista-transacoes">
+        <div class="skeleton-item"></div>
+        <div class="skeleton-item"></div>
+        <div class="skeleton-item"></div>
+    </main>
+
+    <nav class="nav-bottom">
+        <a href="home.html" class="nav-item"><i class="fas fa-home"></i><span>Painel</span></a>
+        <a href="planos.html" class="nav-item"><i class="fas fa-gem"></i><span>Níveis</span></a>
+        <a href="recompensas.html" class="nav-item"><i class="fas fa-gift"></i><span>Bônus</span></a>
+        <a href="indicacao.html" class="nav-item"><i class="fas fa-users"></i><span>Rede</span></a>
+        <a href="perfil.html" class="nav-item active"><i class="fas fa-user"></i><span>Perfil</span></a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let transacoesGlobais = [];
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) await carregarHistorico(user.uid);
+            else window.location.href = "index.html";
+        });
+
+        async function carregarHistorico(uid) {
+            transacoesGlobais = [];
+            try {
+                const qSaques = query(collection(db, "saques"), where("uid", "==", uid));
+                const qGeral = query(collection(db, "historico"), where("userId", "==", uid));
+                const [snapSaques, snapGeral] = await Promise.all([getDocs(qSaques), getDocs(qGeral)]);
+
+                snapSaques.forEach(doc => {
+                    const d = doc.data();
+                    const vSaque = Number(d.bruto || d.valorTotal || d.valor || 0);
+                    transacoesGlobais.push({
+                        categoria: 'saque',
+                        titulo: 'Saque Premium',
+                        valor: vSaque,
+                        data: d.data?.toDate() || d.timestamp?.toDate() || new Date(),
+                        status: d.status || 'pendente',
+                        isNegative: true,
+                        icon: 'fa-money-bill-transfer',
+                        iconClass: 'icon-saque'
+                    });
+                });
+
+                snapGeral.forEach(doc => {
+                    const d = doc.data();
+                    let valorOrig = Number(d.valorTotal || d.valor || 0);
+                    let isNegative = false;
+                    let categoriaFiltro = 'lucros';
+                    let tituloExibicao = d.tipo || 'Operação';
+                    let icon = 'fa-chart-line';
+                    let iconClass = 'icon-rendimento';
+
+                    const tipoTexto = String(d.tipo || "").toLowerCase();
+
+                    if (tipoTexto.includes('saque') || tipoTexto.includes('retirada') || tipoTexto.includes('resgate')) {
+                        categoriaFiltro = 'saque';
+                        tituloExibicao = 'Saque Premium';
+                        isNegative = true;
+                        icon = 'fa-money-bill-transfer';
+                        iconClass = 'icon-saque';
+                    } else if (tipoTexto.includes('aporte') || tipoTexto.includes('depósito') || tipoTexto.includes('deposito')) {
+                        categoriaFiltro = 'deposito';
+                        tituloExibicao = 'Aporte PIX';
+                        icon = 'fa-wallet';
+                        iconClass = 'icon-deposito';
+                    } else if (tipoTexto.includes('ativação') || tipoTexto.includes('nível') || valorOrig < 0) {
+                        categoriaFiltro = 'ativação';
+                        tituloExibicao = 'Ativação Nível';
+                        isNegative = true;
+                        icon = 'fa-shield-halved';
+                        iconClass = 'icon-ativacao';
+                    } else {
+                        categoriaFiltro = 'lucros';
+                        tituloExibicao = tipoTexto.includes('rendimento') ? 'Rendimento Diário' : 'Bônus de Rede';
+                        icon = tipoTexto.includes('rendimento') ? 'fa-arrow-trend-up' : 'fa-users';
+                        iconClass = tipoTexto.includes('rendimento') ? 'icon-rendimento' : 'icon-comissao';
+                    }
+
+                    if (categoriaFiltro === 'saque' && transacoesGlobais.some(t => t.titulo === 'Saque Premium' && Math.abs(t.valor - valorOrig) < 0.01)) {
+                        return; 
+                    }
+
+                    transacoesGlobais.push({
+                        categoria: categoriaFiltro,
+                        titulo: tituloExibicao,
+                        valor: Math.abs(valorOrig),
+                        data: d.data?.toDate() || d.timestamp?.toDate() || new Date(),
+                        status: d.status || 'concluido',
+                        isNegative: isNegative,
+                        icon: icon,
+                        iconClass: iconClass
+                    });
+                });
+
+                transacoesGlobais.sort((a, b) => b.data - a.data);
+                renderizar(transacoesGlobais);
+            } catch (error) { 
+                console.error(error); 
+                document.getElementById('lista-transacoes').innerHTML = "<p style='text-align:center; opacity:0.5;'>Erro ao carregar dados.</p>";
+            }
+        }
+
+        function renderizar(lista) {
+            const container = document.getElementById('lista-transacoes');
+            container.innerHTML = '';
+            
+            if (lista.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:var(--text-muted); margin-top:50px;'>Nenhum registro encontrado.</p>";
+                return;
+            }
+
+            let ultimaData = "";
+            lista.forEach((t, index) => {
+                const dataString = t.data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+                if (dataString !== ultimaData) {
+                    container.innerHTML += `<div class="date-divider">${dataString}</div>`;
+                    ultimaData = dataString;
+                }
+
+                const statusMap = { 
+                    'concluido': { text: 'Sucesso', class: 'status-success' }, 
+                    'sucesso': { text: 'Sucesso', class: 'status-success' }, 
+                    'pendente': { text: 'Processando', class: 'status-pending' },
+                    'rejeitado': { text: 'Falhou', class: 'status-fail' }
+                };
+                const statusInfo = statusMap[String(t.status).toLowerCase()] || statusMap['pendente'];
+
+                container.innerHTML += `
+                    <div class="transaction-item animate__animated animate__fadeInUp" style="animation-delay: ${index * 0.05}s">
+                        <div class="trans-icon ${t.iconClass}"><i class="fas ${t.icon}"></i></div>
+                        <div class="trans-meta">
+                            <h4>${t.titulo}</h4>
+                            <span>${t.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Transação</span>
+                        </div>
+                        <div class="trans-value">
+                            <span class="val-amount" style="color: ${t.isNegative ? 'var(--danger)' : 'var(--success)'}">
+                                ${t.isNegative ? '-' : '+'} R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </span>
+                            <span class="val-status ${statusInfo.class}">${statusInfo.text}</span>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        window.filtrar = (tipo, e) => {
+            document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+            if(e) e.target.classList.add('active');
+            if (tipo === 'todos') renderizar(transacoesGlobais);
+            else renderizar(transacoesGlobais.filter(t => t.categoria === tipo));
+        };
+    </script>
+</body>
+</html>

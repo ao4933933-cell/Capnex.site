@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Portfólio Premium</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            --bg-black: #08080a;
+            --surface-dark: #121217;
+            --accent-red: #ff3b3b;
+            --accent-orange: #f0b90b;
+            --success-green: #00ff88;
+            --glass-white: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+            --gradient-premium: linear-gradient(135deg, #ff3b3b 0%, #f0b90b 100%);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg-black); 
+            color: var(--text-main);
+            padding-bottom: 40px;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- ANIMAÇÃO GROW-REVEAL --- */
+        .grow-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .grow-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Background Decor */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%; right: -10%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(240, 185, 11, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        /* Header Premium */
+        .header-premium {
+            padding: 30px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(8, 8, 10, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .back-circle {
+            width: 45px; height: 45px;
+            background: var(--surface-dark);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--glass-white);
+            color: white; text-decoration: none;
+            transition: 0.3s;
+        }
+        .back-circle:active { transform: scale(0.9); }
+
+        .header-premium h2 { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; }
+
+        /* Dashboard de Resumo */
+        .dashboard-container {
+            padding: 0 20px 25px;
+        }
+
+        .summary-card {
+            background: var(--surface-dark);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid var(--glass-white);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efeito de luz no card principal */
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .summary-item { display: flex; flex-direction: column; }
+        .summary-item.full { grid-column: span 2; border-bottom: 1px solid var(--glass-white); padding-bottom: 15px; }
+
+        .label { font-size: 0.75rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .value { font-size: 1.5rem; font-weight: 800; color: white; }
+        .value.highlight { background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Botão Novo Plano */
+        .cta-btn {
+            margin: 0 20px 30px;
+            background: var(--gradient-premium);
+            padding: 18px;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px;
+            color: black; font-weight: 800; text-decoration: none;
+            box-shadow: 0 10px 25px rgba(240, 185, 11, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cta-btn:active { transform: scale(0.95); }
+
+        /* Listagem de Planos */
+        .invest-list { padding: 0 20px; }
+
+        .premium-card {
+            background: var(--surface-dark);
+            border-radius: 28px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid var(--glass-white);
+            transition: transform 0.3s ease;
+        }
+
+        .card-image-box {
+            height: 160px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-image-box::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 0%, var(--surface-dark) 100%);
+        }
+
+        .card-badge {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 0.7rem; font-weight: 700; color: var(--accent-orange);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-content { padding: 20px; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .card-title { font-size: 1.1rem; font-weight: 700; }
+        .card-price { font-size: 1.4rem; font-weight: 800; color: white; }
+
+        /* Barra de Progresso */
+        .progress-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; }
+        .progress-bar-bg { background: #1e1e26; height: 10px; border-radius: 10px; overflow: hidden; position: relative; }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-premium);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        .progress-bar-fill::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Grid de Info Interna */
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 15px; margin-top: 20px; gap: 10px;
+        }
+        .info-box span { display: block; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+        .info-box b { font-size: 0.95rem; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-premium grow-reveal">
+        <a href="home.html" class="back-circle"><i class="fa-solid fa-arrow-left-long"></i></a>
+        <h2>Portfólio</h2>
+        <div style="width: 45px;"></div>
+    </header>
+
+    <div class="dashboard-container grow-reveal">
+        <div class="summary-card">
+            <div class="summary-item full">
+                <span class="label">Patrimônio em Ativos</span>
+                <span class="value highlight" id="total-investido">R$ 0,00</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Lucro Acumulado</span>
+                <span class="value" id="total-ganho" style="color: var(--success-green);">R$ 0,00</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Planos</span>
+                <span class="value" id="count-ativos">0</span>
+            </div>
+        </div>
+    </div>
+
+    <a href="planos.html" class="cta-btn grow-reveal">
+        <i class="fa-solid fa-rocket"></i> Explorar Novos Planos
+    </a>
+
+    <div class="invest-list" id="invest-list-container">
+        <p style="text-align: center; color: var(--text-dim); margin-top: 50px;">
+            <i class="fas fa-circle-notch fa-spin"></i> Sincronizando seus ativos...
+        </p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Função para disparar as animações de entrada
+        function triggerGrowReveal() {
+            const items = document.querySelectorAll('.grow-reveal');
+            items.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('active');
+                }, index * 100);
+            });
+        }
+
+        const formatCurrency = (val) => {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(val || 0);
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Dispara animação inicial do header e dashboard
+                triggerGrowReveal();
+
+                const q = query(collection(db, "user_investments"), where("userId", "==", user.uid));
+                
+                onSnapshot(q, (snapshot) => {
+                    let html = "";
+                    let totalInv = 0;
+                    let totalGanho = 0;
+                    let count = 0;
+
+                    if (snapshot.empty) {
+                        html = `
+                        <div class="grow-reveal active" style="text-align:center; padding: 60px 20px; color: var(--text-dim);">
+                            <i class="fa-solid fa-box-open animate__animated animate__pulse animate__infinite" style="font-size: 3.5rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                            <p style="font-size: 1rem;">Seu portfólio está vazio.</p>
+                            <p style="font-size: 0.8rem; margin-top: 10px;">Aproveite nossas oportunidades e ative seu primeiro plano hoje!</p>
+                        </div>`;
+                        
+                        document.getElementById('total-investido').innerText = formatCurrency(0);
+                        document.getElementById('total-ganho').innerText = formatCurrency(0);
+                        document.getElementById('count-ativos').innerText = "0";
+                    } else {
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            count++;
+                            
+                            const valorOriginal = parseFloat(data.valorOriginal || 0);
+                            const valorRecebido = parseFloat(data.valorRecebido || 0);
+                            const valorTotalFinal = parseFloat(data.valorTotalFinal || 0);
+                            const diasPassados = parseInt(data.diasPassados || 0);
+                            const diasTotais = parseInt(data.diasTotais || 1);
+
+                            totalInv += valorOriginal;
+                            totalGanho += valorRecebido;
+
+                            const progresso = Math.min(((diasPassados / diasTotais) * 100), 100);
+
+                            // Adicionada classe animate__fadeInUp para cada card individual
+                            html += `
+                            <div class="premium-card animate__animated animate__fadeInUp" style="animation-delay: ${count * 0.1}s">
+                                <div class="card-image-box" style="background-image: url('${data.imgUrl || 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1000'}');">
+                                    <div class="card-badge"><i class="fa-solid fa-circle-check"></i> ATIVO</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <span class="card-title">${data.titulo || 'Plano CapNex'}</span>
+                                        <span class="card-price">${formatCurrency(valorOriginal)}</span>
+                                    </div>
+                                    
+                                    <div class="progress-container">
+                                        <div class="progress-meta">
+                                            <span>Progresso do Ciclo</span>
+                                            <span style="color: var(--accent-orange); font-weight: 700;">${progresso.toFixed(1)}%</span>
+                                        </div>
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: ${progresso}%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-grid">
+                                        <div class="info-box">
+                                            <span>Já Recebido</span>
+                                            <b style="color: var(--success-green);">${formatCurrency(valorRecebido)}</b>
+                                        </div>
+                                        <div class="info-box">
+                                            <span>Retorno Total</span>
+                                            <b>${formatCurrency(valorTotalFinal)}</b>
+                                        </div>
+                                        <div class="info-box">
+                                            <span>Ciclo</span>
+                                            <b>${diasPassados}/${diasTotais} Dias</b>
+                                        </div>
+                                        <div class="info-box">
+                                            <span>Status</span>
+                                            <b style="color: var(--accent-orange);">Rendendo</b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+
+                        document.getElementById('total-investido').innerText = formatCurrency(totalInv);
+                        document.getElementById('total-ganho').innerText = formatCurrency(totalGanho);
+                        document.getElementById('count-ativos').innerText = count;
+                    }
+
+                    document.getElementById('invest-list-container').innerHTML = html;
+
+                }, (error) => {
+                    console.error("Erro na sincronização: ", error);
+                    document.getElementById('invest-list-container').innerHTML = `
+                        <p style="color:var(--accent-red); text-align:center; padding: 20px;">
+                            Erro ao carregar dados. Verifique sua conexão.
+                        </p>`;
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+    </script>
+</body>
+</html>

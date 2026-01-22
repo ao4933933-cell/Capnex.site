@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CapNex | Criar Conta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --bg-body: #0f141e;
+            --primary-red: #ff4d4d; /* Cor original CapNex */
+            --dark-red: #cc0000;
+            --text-white: #ffffff;
+            --text-muted: #8e94a3;
+            --input-bg: #1e2533;
+            --input-border: #2d3748;
+            --card-bg: #181d29;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% -20%, #2c1010 0%, #0f141e 60%);
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 420px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+            color: var(--text-white);
+        }
+
+        .header-section p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .register-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 28px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--input-border);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-white);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 16px 16px 16px 52px;
+            background: var(--input-bg);
+            border: 1.5px solid var(--input-border);
+            border-radius: 16px;
+            font-size: 1rem;
+            color: var(--text-white);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary-red);
+            outline: none;
+            background: #242c3d;
+            box-shadow: 0 0 0 4px rgba(255, 77, 77, 0.1);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(255, 77, 77, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 77, 77, 0.35);
+        }
+
+        .btn-register:disabled {
+            background: #2d3748;
+            color: #4a5568;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .terms-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .footer-link a {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        /* --- CUSTOMIZAÇÃO PREMIUM SWEETALERT --- */
+        .swal-capnex-popup { 
+            background: #181d29 !important;
+            color: #ffffff !important;
+            border-radius: 28px !important; 
+            border: 1px solid rgba(255, 77, 77, 0.2) !important;
+            padding: 2rem !important;
+        }
+        
+        .swal-capnex-title {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 1.5rem !important;
+        }
+
+        .swal-capnex-content {
+            color: #8e94a3 !important;
+            font-size: 1rem !important;
+        }
+
+        .swal-capnex-confirm-btn { 
+            background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%) !important; 
+            border-radius: 14px !important; 
+            padding: 12px 35px !important;
+            font-weight: 700 !important; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3) !important;
+            border: none !important;
+        }
+
+        /* Forçar ícone de sucesso para vermelho CapNex */
+        .swal2-icon.swal2-success {
+            border-color: #ff4d4d !important;
+            color: #ff4d4d !important;
+        }
+        .swal2-icon.swal2-success [class^=swal2-success-line] {
+            background-color: #ff4d4d !important;
+        }
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border: .25em solid rgba(255, 77, 77, 0.2) !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-wrapper">
+        <div class="header-section">
+            <h1>Criar Conta</h1>
+            <p>Preencha os dados abaixo para o acesso CapNex</p>
+        </div>
+
+        <div class="register-card">
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="reg-nome" placeholder="Seu nome completo">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>E-mail</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="seu@email.com">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Senha</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="reg-senha" placeholder="Mínimo 6 caracteres">
+                </div>
+            </div>
+
+            <div class="terms-container">
+                <input type="checkbox" id="checkTermos" checked>
+                <span>Concordo com os <b>Termos e Política</b></span>
+            </div>
+
+            <button class="btn-register" id="btnRegistrar">
+                <i class="fa-solid fa-user-plus"></i> Criar Conta
+            </button>
+        </div>
+
+        <div class="footer-link">
+            Já tem uma conta? <a href="index.html">Entrar</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, increment, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
+            authDomain: "capnex-c6447.firebaseapp.com",
+            projectId: "capnex-c6447",
+            storageBucket: "capnex-c6447.firebasestorage.app",
+            messagingSenderId: "314835497580",
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49",
+            measurementId: "G-G7C9W932MS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // FUNÇÃO DE ALERTA PREMIUM CUSTOMIZADA
+        const FireAlert = (icon, title, text, timer = null) => {
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: text,
+                timer: timer,
+                showConfirmButton: !timer,
+                confirmButtonText: 'ENTENDIDO',
+                showClass: {
+                    popup: 'animate__animated animate__zoomIn animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOut animate__faster'
+                },
+                customClass: {
+                    popup: 'swal-capnex-popup',
+                    title: 'swal-capnex-title',
+                    confirmButton: 'swal-capnex-confirm-btn',
+                    htmlContainer: 'swal-capnex-content'
+                }
+            });
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let inviteCode = urlParams.get('ref');
+        if (inviteCode) localStorage.setItem('refCode', inviteCode);
+        else inviteCode = localStorage.getItem('refCode');
+
+        document.getElementById('btnRegistrar').addEventListener('click', async () => {
+            const nome = document.getElementById('reg-nome').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const senha = document.getElementById('reg-senha').value;
+            const termos = document.getElementById('checkTermos').checked;
+            const btn = document.getElementById('btnRegistrar');
+
+            if (!nome || !email || senha.length < 6) {
+                return FireAlert('warning', 'Dados Incompletos', 'Preencha todos os campos corretamente (Senha mín. 6 caracteres).');
+            }
+
+            if (!termos) {
+                return FireAlert('warning', 'Termos de Uso', 'Para prosseguir, você deve aceitar os termos e políticas da plataforma.');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> PROCESSANDO...';
+
+            try {
+                let paiId = null, avoId = null, bisavoId = null;
+
+                // BUSCA DE REFERÊNCIA
+                if (inviteCode) {
+                    try {
+                        const q = query(collection(db, "usuarios"), where("inviteCode", "==", inviteCode.toUpperCase()), limit(1));
+                        const snap = await getDocs(q);
+                        if (!snap.empty) {
+                            const paiDoc = snap.docs[0];
+                            const paiData = paiDoc.data();
+                            paiId = paiDoc.id;
+                            avoId = paiData.indicadoPor || null;
+                            bisavoId = paiData.indicadoPorLvl2 || null;
+                        }
+                    } catch (e) { console.error("Erro ref:", e); }
+                }
+
+                // CRIAR AUTH
+                const userCred = await createUserWithEmailAndPassword(auth, email, senha);
+                const uid = userCred.user.uid;
+                const meuCode = uid.substring(0, 7).toUpperCase();
+
+                // SALVAR NO FIRESTORE
+                await setDoc(doc(db, "usuarios", uid), {
+                    nome, email, uid,
+                    inviteCode: meuCode,
+                    saldo: 0,
+                    saldoLucro: 0,
+                    totalInvestido: 0,
+                    totalComissao: 0,
+                    status: "ativo",
+                    indicadoPor: paiId,
+                    indicadoPorLvl2: avoId,
+                    indicadoPorLvl3: bisavoId,
+                    totalIndicadosLvl1: 0,
+                    totalIndicadosLvl2: 0,
+                    totalIndicadosLvl3: 0,
+                    dataCriacao: new Date().toISOString()
+                });
+
+                // ATUALIZAR CONTADORES COM SEGURANÇA
+                const updateCounter = async (id, field) => {
+                    if (id) {
+                        try { await updateDoc(doc(db, "usuarios", id), { [field]: increment(1) }); } 
+                        catch (e) { console.warn(`Erro no contador ${field}:`, e); }
+                    }
+                };
+
+                await updateCounter(paiId, "totalIndicadosLvl1");
+                await updateCounter(avoId, "totalIndicadosLvl2");
+                await updateCounter(bisavoId, "totalIndicadosLvl3");
+
+                localStorage.removeItem('refCode');
+                await FireAlert('success', 'Conta Criada!', 'Bem-vindo ao ecossistema CapNex. Seu acesso foi liberado!', 2500);
+                window.location.href = "home.html";
+
+            } catch (error) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar Conta';
+                
+                let msg = "Erro ao processar registro. Verifique sua conexão de rede.";
+                if (error.code === 'auth/email-already-in-use') msg = "Este endereço de e-mail já possui uma conta ativa.";
+                if (error.code === 'auth/invalid-email') msg = "O formato do e-mail inserido é inválido.";
+                if (error.code === 'permission-denied') msg = "Falha de comunicação com o servidor de dados.";
+                
+                FireAlert('error', 'Ops!', msg);
+                console.error("Erro Geral:", error);
+            }
+        });
+    </script>
+</body>
+</html>
