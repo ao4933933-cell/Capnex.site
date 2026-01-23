@@ -12,7 +12,7 @@
     <style>
         :root {
             --bg-body: #0f141e;
-            --primary-red: #ff4d4d; /* Cor original CapNex */
+            --primary-red: #ff4d4d;
             --dark-red: #cc0000;
             --text-white: #ffffff;
             --text-muted: #8e94a3;
@@ -205,7 +205,6 @@
             border: none !important;
         }
 
-        /* Forçar ícone de sucesso para vermelho CapNex */
         .swal2-icon.swal2-success {
             border-color: #ff4d4d !important;
             color: #ff4d4d !important;
@@ -274,7 +273,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, increment, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, collection, query, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA6sEp3R5HHZh9tIAqny5Ed8j2SY3WZhi0",
@@ -282,15 +281,13 @@
             projectId: "capnex-c6447",
             storageBucket: "capnex-c6447.firebasestorage.app",
             messagingSenderId: "314835497580",
-            appId: "1:314835497580:web:3f0b511d36e49c265bde49",
-            measurementId: "G-G7C9W932MS"
+            appId: "1:314835497580:web:3f0b511d36e49c265bde49"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // FUNÇÃO DE ALERTA PREMIUM CUSTOMIZADA
         const FireAlert = (icon, title, text, timer = null) => {
             return Swal.fire({
                 icon: icon,
@@ -340,29 +337,43 @@
             try {
                 let paiId = null, avoId = null, bisavoId = null;
 
-                // BUSCA DE REFERÊNCIA
+                // --- SISTEMA DE IDENTIFICAÇÃO DE INDICADOR CORRIGIDO ---
                 if (inviteCode) {
-                    try {
-                        const q = query(collection(db, "usuarios"), where("inviteCode", "==", inviteCode.toUpperCase()), limit(1));
-                        const snap = await getDocs(q);
-                        if (!snap.empty) {
-                            const paiDoc = snap.docs[0];
-                            const paiData = paiDoc.data();
-                            paiId = paiDoc.id;
-                            avoId = paiData.indicadoPor || null;
-                            bisavoId = paiData.indicadoPorLvl2 || null;
+                    const cleanCode = inviteCode.trim();
+                    
+                    // Busca por inviteCode (Curto)
+                    const q = query(collection(db, "usuarios"), where("inviteCode", "==", cleanCode.toUpperCase()), limit(1));
+                    const snap = await getDocs(q);
+
+                    if (!snap.empty) {
+                        const paiDoc = snap.docs[0];
+                        paiId = paiDoc.id;
+                        const paiData = paiDoc.data();
+                        avoId = paiData.indicadoPor || null;
+                        bisavoId = paiData.indicadoPorLvl2 || null;
+                    } else {
+                        // Busca por UID direto (Longo)
+                        const directRef = doc(db, "usuarios", cleanCode);
+                        const directSnap = await getDoc(directRef);
+                        if (directSnap.exists()) {
+                            paiId = directSnap.id;
+                            const d = directSnap.data();
+                            avoId = d.indicadoPor || null;
+                            bisavoId = d.indicadoPorLvl2 || null;
                         }
-                    } catch (e) { console.error("Erro ref:", e); }
+                    }
                 }
 
-                // CRIAR AUTH
+                // CRIAR AUTH NO FIREBASE
                 const userCred = await createUserWithEmailAndPassword(auth, email, senha);
                 const uid = userCred.user.uid;
                 const meuCode = uid.substring(0, 7).toUpperCase();
 
-                // SALVAR NO FIRESTORE
+                // SALVAR NO FIRESTORE COM HIERARQUIA COMPLETA
                 await setDoc(doc(db, "usuarios", uid), {
-                    nome, email, uid,
+                    nome, 
+                    email, 
+                    uid,
                     inviteCode: meuCode,
                     saldo: 0,
                     saldoLucro: 0,
@@ -378,17 +389,10 @@
                     dataCriacao: new Date().toISOString()
                 });
 
-                // ATUALIZAR CONTADORES COM SEGURANÇA
-                const updateCounter = async (id, field) => {
-                    if (id) {
-                        try { await updateDoc(doc(db, "usuarios", id), { [field]: increment(1) }); } 
-                        catch (e) { console.warn(`Erro no contador ${field}:`, e); }
-                    }
-                };
-
-                await updateCounter(paiId, "totalIndicadosLvl1");
-                await updateCounter(avoId, "totalIndicadosLvl2");
-                await updateCounter(bisavoId, "totalIndicadosLvl3");
+                // ATUALIZAÇÃO SÍNCRONA DOS CONTADORES DA REDE
+                if (paiId) await updateDoc(doc(db, "usuarios", paiId), { totalIndicadosLvl1: increment(1) });
+                if (avoId) await updateDoc(doc(db, "usuarios", avoId), { totalIndicadosLvl2: increment(1) });
+                if (bisavoId) await updateDoc(doc(db, "usuarios", bisavoId), { totalIndicadosLvl3: increment(1) });
 
                 localStorage.removeItem('refCode');
                 await FireAlert('success', 'Conta Criada!', 'Bem-vindo ao ecossistema CapNex. Seu acesso foi liberado!', 2500);
@@ -398,10 +402,9 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar Conta';
                 
-                let msg = "Erro ao processar registro. Verifique sua conexão de rede.";
-                if (error.code === 'auth/email-already-in-use') msg = "Este endereço de e-mail já possui uma conta ativa.";
-                if (error.code === 'auth/invalid-email') msg = "O formato do e-mail inserido é inválido.";
-                if (error.code === 'permission-denied') msg = "Falha de comunicação com o servidor de dados.";
+                let msg = "Erro ao processar registro. Verifique sua conexão.";
+                if (error.code === 'auth/email-already-in-use') msg = "Este e-mail já possui uma conta ativa.";
+                if (error.code === 'auth/invalid-email') msg = "O formato do e-mail é inválido.";
                 
                 FireAlert('error', 'Ops!', msg);
                 console.error("Erro Geral:", error);
