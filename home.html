@@ -437,6 +437,42 @@
         .nav-link i { display: block; font-size: 1.4rem; margin-bottom: 6px; }
         .nav-link span { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
         .nav-link.active { color: var(--primary-red); }
+
+        /* --- WHATSAPP FLOATING BUTTON (ADICIONADO) --- */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 110px; /* Ajustado para ficar acima do menu */
+            right: 20px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            animation: pulse-whatsapp 2s infinite;
+        }
+
+        .whatsapp-float:active {
+            transform: scale(0.9);
+        }
+
+        .whatsapp-float i {
+            margin-top: 2px; /* Pequeno ajuste de alinhamento do ícone */
+        }
+
+        @keyframes pulse-whatsapp {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
     </style>
 </head>
 <body>
@@ -519,6 +555,10 @@
         </div>
         <div class="transaction-list" id="recent-list"></div>
     </section>
+
+    <a href="https://chat.whatsapp.com/ImKW1xKlnT8H54XtaRtmOF" class="whatsapp-float" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
 
     <nav class="bottom-nav">
         <a href="home.html" class="nav-link active">
